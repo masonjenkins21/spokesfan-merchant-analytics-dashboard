@@ -1,0 +1,15 @@
+# Virtual environment
+.venv/
+
+# PyCharm
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# Internship data (until permission is confirmed)
+data/raw/
