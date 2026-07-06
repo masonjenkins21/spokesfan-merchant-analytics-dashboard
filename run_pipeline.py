@@ -64,7 +64,7 @@ final_df["final_sentiment"] = final_df["bert_score"].apply(
 
 
 
-# AGREEMENT
+# Agreement
 agreement = (
     reviews["rating"] ==
     reviews["ml_pred_class"]
