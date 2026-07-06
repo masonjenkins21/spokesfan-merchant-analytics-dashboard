@@ -9,7 +9,7 @@ import joblib
 
 
 
-# LOAD DATA
+# Load data
 project_root = Path(__file__).resolve().parent
 _, reviews = load_data()
 
