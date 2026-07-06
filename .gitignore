@@ -4,12 +4,19 @@
 # PyCharm
 .idea/
 
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 
-# macOS
+# OS files
 .DS_Store
 
-# Internship data (until permission is confirmed)
+# Data (raw input data not shared)
 data/raw/
+
+# Temporary files
+*.log
+*.tmp
+
+# Notebook cache (optional)
+.ipynb_checkpoints/
