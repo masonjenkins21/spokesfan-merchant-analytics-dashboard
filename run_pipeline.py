@@ -91,7 +91,7 @@ print(errors[[
 
 
 
-# OUTPUTS
+# Outputs
 print("\n--- FINAL DATAFRAME PREVIEW ---")
 print(final_df.head())
 
