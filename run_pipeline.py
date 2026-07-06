@@ -17,7 +17,7 @@ reviews = apply_preprocessing(reviews)
 
 
 
-# LOAD TRAINED TF-IDF + LOGISTIC REGRESSION
+# Load trained TF-IDF + Logistic Regression
 
 tfidf = joblib.load(project_root / "models" / "tfidf_vectorizer.pkl")
 model = load_model(project_root / "models" / "logreg_model.pkl")
