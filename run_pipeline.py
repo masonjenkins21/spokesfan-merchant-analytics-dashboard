@@ -117,7 +117,7 @@ print(classification_report(
 ))
 
 
-# Optional export
+# Optional expor
 # final_df.to_csv(
 #     "data/processed/sentiment_output.csv",
 #     index=False
