@@ -75,7 +75,7 @@ print(f"TF-IDF vs Actual Rating Agreement: {agreement:.2%}")
 
 
 
-# ERROR ANALYSIS
+# Error analysis
 errors = reviews[
     reviews["rating"] != reviews["ml_pred_class"]
 ]
