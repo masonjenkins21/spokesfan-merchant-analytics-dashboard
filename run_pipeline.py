@@ -50,7 +50,7 @@ sample["bert_score"] = sample["clean_text"].apply(
 
 
 
-# FINAL DATASET
+# Final dataset
 final_df = sample.copy()
 
 final_df["final_sentiment"] = final_df["bert_score"].apply(
