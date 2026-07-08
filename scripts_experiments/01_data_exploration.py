@@ -13,8 +13,8 @@ data_dir = project_root / "data" / "raw"
 
 
 # Load in data
-products = pd.read_csv(data_dir / "cheekbonebeauty_products_export.csv")
-reviews = pd.read_csv(data_dir / "cheekbonebeauty.com_YOTPO_all_product_reviews.csv")
+products = pd.read_csv(data_dir / "products.csv")
+reviews = pd.read_csv(data_dir / "reviews.csv")
 
 
 

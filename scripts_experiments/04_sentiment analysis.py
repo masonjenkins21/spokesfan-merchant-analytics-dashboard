@@ -15,7 +15,7 @@ project_root = Path(__file__).resolve().parent.parent
 data_dir = project_root / "data" / "raw"
 
 reviews = pd.read_csv(
-    data_dir / "cheekbonebeauty.com_YOTPO_all_product_reviews.csv"
+    data_dir / "reviews.csv"
 )
 
 reviews["review_description"] = reviews["review_description"].fillna("")
