@@ -14,6 +14,9 @@ __pycache__/
 # Data (raw input data not shared)
 data/raw/
 
+# Generated outputs
+data/processed/
+
 # Temporary files
 *.log
 *.tmp
