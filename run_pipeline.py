@@ -27,15 +27,6 @@ reviews["ml_pred_class"] = model.predict(X)
 
 
 
-# VADER
-sia = SentimentIntensityAnalyzer()
-
-reviews["vader_score"] = reviews["clean_text"].apply(
-    lambda x: sia.polarity_scores(x)["compound"]
-)
-
-
-
 # DISTILBERT
 bert_pipe = load_bert_model()
 
