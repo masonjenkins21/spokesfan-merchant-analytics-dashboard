@@ -2,10 +2,8 @@ import pandas as pd
 from pathlib import Path
 
 
-# -----------------------------
-# File paths
-# -----------------------------
 
+# File paths
 INPUT_FILE = Path(
     "data/processed/reviews_with_roberta_sentiment.csv"
 )
@@ -20,10 +18,8 @@ OUTPUT_DIR.mkdir(
 )
 
 
-# -----------------------------
-# Load data
-# -----------------------------
 
+# Load data
 print("Loading sentiment dataset...")
 
 df = pd.read_csv(
@@ -34,10 +30,8 @@ df = pd.read_csv(
 print(f"Loaded {len(df)} reviews")
 
 
-# -----------------------------
-# Data preparation
-# -----------------------------
 
+# Data preparation
 df["review_date"] = pd.to_datetime(
     df["review_date"],
     errors="coerce"
@@ -51,10 +45,8 @@ df["month"] = (
 )
 
 
-# -----------------------------
-# 1. Merchant Summary
-# -----------------------------
 
+# 1. Merchant Summary
 print("\nCreating merchant summary...")
 
 
@@ -107,10 +99,8 @@ merchant_summary.to_csv(
 )
 
 
-# -----------------------------
-# 2. Product Sentiment
-# -----------------------------
 
+# 2. Product Sentiment
 print("Creating product summary...")
 
 
@@ -149,10 +139,8 @@ product_summary.to_csv(
 )
 
 
-# -----------------------------
-# 3. Rating vs Sentiment
-# -----------------------------
 
+# 3. Rating vs Sentiment
 print("Creating rating sentiment analysis...")
 
 
@@ -181,10 +169,8 @@ rating_sentiment.to_csv(
 )
 
 
-# -----------------------------
-# 4. Monthly Trends
-# -----------------------------
 
+# 4. Monthly Trends
 print("Creating monthly trends...")
 
 

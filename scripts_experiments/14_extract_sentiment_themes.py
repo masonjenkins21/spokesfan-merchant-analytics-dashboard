@@ -7,10 +7,8 @@ from sklearn.feature_extraction.text import (
 )
 
 
-# -----------------------------
-# File paths
-# -----------------------------
 
+# File paths
 INPUT_FILE = Path(
     "data/processed/reviews_with_roberta_sentiment.csv"
 )
@@ -31,10 +29,8 @@ OUTPUT_FILE = (
 )
 
 
-# -----------------------------
-# Load data
-# -----------------------------
 
+# Load data
 print("Loading sentiment dataset...")
 
 
@@ -45,7 +41,6 @@ df = pd.read_csv(
 
 
 # Create product identifier from URL
-
 df["product_name"] = (
     df["product_url"]
     .str.extract(r"/products/([^/?]+)")
@@ -64,10 +59,8 @@ print(
 )
 
 
-# -----------------------------
-# Filter negative reviews
-# -----------------------------
 
+# Filter negative reviews
 negative_reviews = df[
     df["roberta_label"] == "negative"
 ].copy()
@@ -83,10 +76,8 @@ negative_reviews = negative_reviews[
 ]
 
 
-# -----------------------------
-# TF-IDF setup
-# -----------------------------
 
+# TF-IDF setup
 custom_stop_words = list(
     ENGLISH_STOP_WORDS.union(
         {
@@ -150,10 +141,8 @@ custom_stop_words = list(
 )
 
 
-# -----------------------------
-# TF-IDF extraction function
-# -----------------------------
 
+# TF-IDF extraction function
 def extract_keywords(texts, top_n=20):
 
     texts = (
@@ -233,10 +222,8 @@ def extract_keywords(texts, top_n=20):
 
 
 
-# -----------------------------
-# Merchant themes
-# -----------------------------
 
+# Merchant themes
 print("\nExtracting merchant themes...")
 
 
@@ -299,10 +286,8 @@ else:
 
 
 
-# -----------------------------
-# Product themes
-# -----------------------------
 
+# Product themes
 print("\nExtracting product themes...")
 
 
@@ -316,7 +301,6 @@ for product, group in (
 
 
     # Ignore products with too few negative reviews
-
     if len(group) < 5:
 
         continue
@@ -372,10 +356,8 @@ else:
 
 
 
-# -----------------------------
-# Save merchant themes
-# -----------------------------
 
+# Save merchant themes
 merchant_theme_results.to_csv(
     OUTPUT_FILE,
     index=False

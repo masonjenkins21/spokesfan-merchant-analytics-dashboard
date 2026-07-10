@@ -12,6 +12,7 @@ project_root = Path(__file__).resolve().parent.parent
 processed_dir = project_root / "data" / "processed"
 
 processed_dir.mkdir(
+    parents=True,
     exist_ok=True
 )
 
@@ -56,7 +57,6 @@ def evaluate_transformer(model_name, model_path, reviews):
         "score": scores
     })
 
-    sentiment_std = results["score"].std()
 
     summary = {
         "model": model_name,
@@ -96,7 +96,7 @@ def evaluate_transformer(model_name, model_path, reviews):
         "runtime_seconds": runtime,
 
         "reviews_per_second": (
-                len(results) / runtime
+                len(results) / runtime if runtime else 0
         ),
 
         "net_sentiment": (

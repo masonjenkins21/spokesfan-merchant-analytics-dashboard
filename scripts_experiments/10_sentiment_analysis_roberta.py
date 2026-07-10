@@ -4,10 +4,8 @@ from transformers import pipeline
 import time
 
 
-# -----------------------------
-# Paths
-# -----------------------------
 
+# Paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
@@ -16,10 +14,8 @@ OUTPUT_PATH = PROJECT_ROOT / "data" / "processed"
 OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
 
-# -----------------------------
-# Load RoBERTa Model
-# -----------------------------
 
+# Load RoBERTa Model
 print("Loading RoBERTa sentiment model...")
 
 sentiment_pipeline = pipeline(
@@ -30,10 +26,8 @@ sentiment_pipeline = pipeline(
 )
 
 
-# -----------------------------
-# Find Merchant Review Files
-# -----------------------------
 
+# Find Merchant Review Files
 merchant_files = {}
 
 for merchant_folder in RAW_DATA_PATH.iterdir():
@@ -52,10 +46,8 @@ for merchant, file in merchant_files.items():
     print(f"{merchant}: {file.name}")
 
 
-# -----------------------------
-# Sentiment Mapping
-# -----------------------------
 
+# Sentiment Mapping
 sentiment_mapping = {
     "LABEL_0": -1,
     "LABEL_1": 0,
@@ -66,19 +58,15 @@ sentiment_mapping = {
 }
 
 
-# -----------------------------
-# Review Text Detection
-# -----------------------------
 
+# Review Text Detection
 possible_review_columns = [
     "review_description"
 ]
 
 
-# -----------------------------
-# Run Sentiment Analysis
-# -----------------------------
 
+# Run Sentiment Analysis
 all_reviews = []
 
 
@@ -97,8 +85,25 @@ for merchant, file_path in merchant_files.items():
     print(f"Loaded {len(reviews)} reviews")
 
 
-    # Find review text column
+    # Create/Fill Product Name
+    if "product_name" not in reviews.columns:
+        reviews["product_name"] = pd.NA
 
+    if "product_url" in reviews.columns:
+        extracted_names = (
+            reviews["product_url"]
+            .astype(str)
+            .str.extract(r"/products/([^/?]+)", expand=False)
+            .str.replace("-", " ", regex=False)
+            .str.title()
+        )
+
+        reviews["product_name"] = (
+            reviews["product_name"]
+            .fillna(extracted_names)
+        )
+
+    # Find review text column
     review_column = None
 
     for column in possible_review_columns:
@@ -131,7 +136,6 @@ for merchant, file_path in merchant_files.items():
 
 
     # Run RoBERTa
-
     predictions = sentiment_pipeline(
         reviews["review_text"].tolist(),
         batch_size=16
@@ -171,10 +175,8 @@ for merchant, file_path in merchant_files.items():
 
 
 
-# -----------------------------
-# Combine Merchant Results
-# -----------------------------
 
+# Combine Merchant Results
 final_reviews = pd.concat(
     all_reviews,
     ignore_index=True
@@ -194,10 +196,8 @@ print(
 
 
 
-# -----------------------------
-# Save Output
-# -----------------------------
 
+# Save Output
 output_file = (
     OUTPUT_PATH /
     "reviews_with_roberta_sentiment.csv"

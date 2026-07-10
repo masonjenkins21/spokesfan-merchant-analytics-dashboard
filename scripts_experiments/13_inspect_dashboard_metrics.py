@@ -2,19 +2,15 @@ import pandas as pd
 from pathlib import Path
 
 
-# -----------------------------
-# File location
-# -----------------------------
 
+# File location
 METRICS_DIR = Path(
     "data/processed/dashboard_metrics"
 )
 
 
-# -----------------------------
-# Files to inspect
-# -----------------------------
 
+# Files to inspect
 files = [
     "merchant_sentiment_summary.csv",
     "product_sentiment_summary.csv",
@@ -25,10 +21,8 @@ files = [
 ]
 
 
-# -----------------------------
-# Inspect files
-# -----------------------------
 
+# Inspect files
 for file in files:
 
     print("\n")
