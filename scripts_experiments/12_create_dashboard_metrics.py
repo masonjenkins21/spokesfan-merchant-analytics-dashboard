@@ -31,16 +31,19 @@ print(f"Loaded {len(df)} reviews")
 
 
 
-# Data preparation
+# Convert review dates and create month field
 df["review_date"] = pd.to_datetime(
     df["review_date"],
-    errors="coerce"
+    format="ISO8601",
+    errors="coerce",
+    utc=True
 )
+
+
 
 df["month"] = (
     df["review_date"]
-    .dt
-    .to_period("M")
+    .dt.to_period("M")
     .astype(str)
 )
 
@@ -171,8 +174,8 @@ rating_sentiment.to_csv(
 
 
 # 4. Monthly Trends
-print("Creating monthly trends...")
 
+print("Creating monthly trends...")
 
 monthly_trends = (
     df.groupby(
