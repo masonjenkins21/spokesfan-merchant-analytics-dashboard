@@ -32,14 +32,13 @@ print(f"Loaded {len(df)} reviews")
 
 
 # Convert review dates and create month field
+# Convert review dates and create month field
 df["review_date"] = pd.to_datetime(
     df["review_date"],
-    format="ISO8601",
+    format="mixed",
     errors="coerce",
     utc=True
 )
-
-
 
 df["month"] = (
     df["review_date"]
@@ -208,6 +207,48 @@ monthly_trends.to_csv(
 
 
 print("\n========== COMPLETE ==========")
+
+
+# 5. Recent Product Performance
+
+print("Creating recent product performance...")
+
+
+latest_date = df["review_date"].max()
+
+recent_reviews = df[
+    df["review_date"] >= latest_date - pd.Timedelta(days=90)
+]
+
+
+recent_product_performance = (
+    recent_reviews
+    .groupby(
+        [
+            "merchant",
+            "product_name"
+        ]
+    )
+    .agg(
+        recent_reviews=("review_description", "count"),
+        recent_positive_percent=(
+            "roberta_label",
+            lambda x: (x == "positive").mean() * 100
+        ),
+        recent_average_rating=(
+            "rating",
+            "mean"
+        )
+    )
+    .reset_index()
+)
+
+
+recent_product_performance.to_csv(
+    OUTPUT_DIR / "recent_product_performance.csv",
+    index=False
+)
+
 
 print(
     "Dashboard files saved to:"

@@ -25,7 +25,7 @@ OUTPUT_DIR.mkdir(
 
 OUTPUT_FILE = (
     OUTPUT_DIR /
-    "negative_sentiment_keywords.csv"
+    "negative_sentiment_themes.csv"
 )
 
 
@@ -81,69 +81,100 @@ negative_reviews = negative_reviews[
 custom_stop_words = list(
     ENGLISH_STOP_WORDS.union(
         {
+            # Generic review words
+            "great",
+            "amazing",
+            "excellent",
+            "perfect",
+            "beautiful",
 
-            # Common filler words
-            "like",
-            "love",
-            "product",
-            "products",
-            "use",
-            "used",
-            "using",
-            "really",
-            "good",
-            "nice",
-            "just",
-            "thing",
-            "things",
-            "get",
-            "got",
-            "make",
-            "made",
-            "also",
-            "one",
-            "two",
-            "much",
-            "very",
+            # Cosmetic nouns
+            "skin",
+            "colour",
+            "color",
+            "lip",
+            "lips",
+            "lipstick",
+            "eyeliner",
+            "pencil",
+            "pencils",
+            "cream",
+            "serum",
+            "mask",
 
-            # Contraction fragments
-            "didn",
-            "doesn",
-            "don",
-            "isn",
-            "wasn",
-            "weren",
-            "haven",
-            "hasn",
-            "hadn",
-            "couldn",
-            "wouldn",
-            "shouldn",
-            "ive",
-            "im",
-            "dont",
-            "cant",
+            # Generic commerce
+            "received",
+            "receive",
+            "receiving",
+            "item",
+            "items",
+            "purchase",
+            "purchased",
+            "buy",
+            "bought",
+            "ordered",
+            "order",
 
-            # Common review language
-            "would",
-            "could",
-            "want",
-            "feel",
-            "felt",
-
-            # Remaining low-value fragments
-            "did",
-            "does",
-            "bit"
-
+            # Generic adjectives
+            "little",
+            "small",
+            "large",
+            "pretty",
+            "best"
         }
     )
 )
 
 
+def assign_theme(keyword):
+    keyword = keyword.lower()
+
+    if any(word in keyword for word in [
+        "ship", "deliver", "order", "package", "receive"
+    ]):
+        return "Shipping & Delivery"
+
+    if any(word in keyword for word in [
+        "dry", "sticky", "greasy", "oily", "thick", "thin"
+    ]):
+        return "Texture"
+
+    if any(word in keyword for word in [
+        "shade", "colour", "color", "pigment"
+    ]):
+        return "Color Accuracy"
+
+    if any(word in keyword for word in [
+        "smudge", "fade", "lasting", "wear"
+    ]):
+        return "Wear Performance"
+
+    if any(word in keyword for word in [
+        "refund", "return", "support", "service"
+    ]):
+        return "Customer Service"
+
+    if any(word in keyword for word in [
+        "irritation", "burn", "itch", "rash", "allergic"
+    ]):
+        return "Skin Reaction"
+
+    if any(word in keyword for word in [
+        "acne", "breakout", "breakouts", "pimple", "blemish"
+    ]):
+        return "Skin Concerns"
+
+    if any(word in keyword for word in [
+        "work", "working", "results",
+        "effective", "advertised"
+    ]):
+        return "Product Effectiveness"
+
+    return None
+
 
 # TF-IDF extraction function
-def extract_keywords(texts, top_n=20):
+def extract_theme_mentions(texts):
 
     texts = (
         texts
@@ -157,8 +188,8 @@ def extract_keywords(texts, top_n=20):
 
         return pd.DataFrame(
             columns=[
-                "keyword",
-                "score"
+                "theme",
+                "mentions"
             ]
         )
 
@@ -188,37 +219,33 @@ def extract_keywords(texts, top_n=20):
 
         return pd.DataFrame(
             columns=[
-                "keyword",
-                "score"
+                "theme",
+                "mentions"
             ]
         )
-
-
-    scores = (
-        tfidf_matrix
-        .sum(axis=0)
-        .A1
-    )
 
 
     keywords = pd.DataFrame(
         {
             "keyword":
-                vectorizer.get_feature_names_out(),
-
-            "score":
-                scores
+                vectorizer.get_feature_names_out()
         }
     )
 
+    keywords["theme"] = keywords["keyword"].apply(assign_theme)
 
-    keywords = keywords.sort_values(
-        "score",
-        ascending=False
+
+    theme_scores = (
+        keywords
+        .dropna(subset=["theme"])
+        .groupby("theme")
+        .size()
+        .reset_index(name="mentions")
+        .sort_values("mentions", ascending=False)
     )
 
 
-    return keywords.head(top_n)
+    return theme_scores
 
 
 
@@ -239,18 +266,15 @@ for merchant, group in (
         f"Processing {merchant}"
     )
 
-
-    keywords = extract_keywords(
+    themes = extract_theme_mentions(
         group["review_text"]
     )
 
-
-    if not keywords.empty:
-
-        keywords["merchant"] = merchant
+    if not themes.empty:
+        themes["merchant"] = merchant
 
         merchant_results.append(
-            keywords
+            themes
         )
 
 
@@ -262,16 +286,13 @@ if merchant_results:
         ignore_index=True
     )
 
-
-    merchant_theme_results = (
-        merchant_theme_results[
-            [
-                "merchant",
-                "keyword",
-                "score"
-            ]
+    merchant_theme_results = merchant_theme_results[
+        [
+            "merchant",
+            "theme",
+            "mentions"
         ]
-    )
+    ]
 
 
 else:
@@ -279,8 +300,8 @@ else:
     merchant_theme_results = pd.DataFrame(
         columns=[
             "merchant",
-            "keyword",
-            "score"
+            "theme",
+            "mentions"
         ]
     )
 
@@ -294,9 +315,14 @@ print("\nExtracting product themes...")
 product_results = []
 
 
-for product, group in (
+for (merchant, product), group in (
     negative_reviews
-    .groupby("product_name")
+    .groupby(
+        [
+            "merchant",
+            "product_name"
+        ]
+    )
 ):
 
 
@@ -305,19 +331,17 @@ for product, group in (
 
         continue
 
-
-
-    keywords = extract_keywords(
+    themes = extract_theme_mentions(
         group["review_text"]
     )
 
-
-    if not keywords.empty:
-
-        keywords["product_name"] = product
+    if not themes.empty:
+        themes["merchant"] = merchant
+        themes["product_name"] = product
+        themes["negative_review_count"] = len(group)
 
         product_results.append(
-            keywords
+            themes
         )
 
 
@@ -329,15 +353,22 @@ if product_results:
         ignore_index=True
     )
 
-
     product_theme_results = (
         product_theme_results[
             [
+                "merchant",
                 "product_name",
-                "keyword",
-                "score"
+                "theme",
+                "mentions",
+                "negative_review_count"
             ]
         ]
+    )
+
+    product_theme_results["theme_frequency_within_negative_reviews"] = (
+            product_theme_results["mentions"]
+            /
+            product_theme_results["negative_review_count"]
     )
 
 
